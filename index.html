@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>NoNoise Connexion</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      z-index: 1;
+      position: relative;
+    }
+    .login-box {
+      border: 1px solid rgb(255, 255, 255);
+      padding: 20px 30px;
+      border-radius: 5px;
+      width: 320px;
+      background-color: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+      z-index: 1;
+      position: relative;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      margin: 20px 0 10px 0;
+      border: 1px solid rgb(255, 255, 255);
+      background-color: #222;
+      color: white;
+    }
+    input[type="submit"] {
+      background-color: #ffffff;
+      color: black;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover {
+      background-color: rgb(255, 255, 255);
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="logo-container">
+    <img src="https://i.ibb.co/q3RJLXwf/Nonoise2.png" alt="Logo" width="300" height="300">
+  </div>
+  <form class="login-box" action="rassemblement.html" method="GET" onsubmit="return verifierLogin()">
+    <h2>Connexion</h2>
+    <input type="password" id="password" placeholder="Code" required>
+    <input type="submit" value="Trouver l'emplacement">
+  </form>
+
+  <script>
+    // Animation du fond abstrait
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    let points = [];
+    let lines = [];
+    let mouseActive = false;
+    let animationFrame;
+    const POINTS = 40;
+    const LINE_DIST = 150;
+
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+
+    function createPoints() {
+      points = [];
+      for (let i = 0; i < POINTS; i++) {
+        points.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      // Draw lines
+      for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+          const dx = points[i].x - points[j].x;
+          const dy = points[i].y - points[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < LINE_DIST) {
+            ctx.strokeStyle = `rgba(255,255,255,${1 - dist / LINE_DIST})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(points[i].x, points[i].y);
+            ctx.lineTo(points[j].x, points[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      // Draw points
+      for (let i = 0; i < points.length; i++) {
+        ctx.beginPath();
+        ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        ctx.fill();
+      }
+    }
+
+    function animate() {
+      if (!mouseActive) return;
+      for (let i = 0; i < points.length; i++) {
+        points[i].x += points[i].vx;
+        points[i].y += points[i].vy;
+        // Bounce on edges
+        if (points[i].x < 0 || points[i].x > width) points[i].vx *= -1;
+        if (points[i].y < 0 || points[i].y > height) points[i].vy *= -1;
+      }
+      draw();
+      animationFrame = requestAnimationFrame(animate);
+    }
+
+    function startAnimation() {
+      if (!mouseActive) {
+        mouseActive = true;
+        animate();
+      }
+    }
+
+    function stopAnimation() {
+      mouseActive = false;
+      cancelAnimationFrame(animationFrame);
+      ctx.clearRect(0, 0, width, height);
+      draw(); // Draw static
+    }
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      createPoints();
+      draw();
+    });
+
+    // Animation démarre quand la souris entre sur la page
+    document.body.addEventListener('mouseenter', startAnimation);
+    document.body.addEventListener('mouseleave', stopAnimation);
+
+    // Initialisation
+    resizeCanvas();
+    createPoints();
+    draw();
+  </script>
+
+  <script>
+    function verifierLogin() {
+      const motDePasse = "2025";
+      const entrePass = document.getElementById('password').value;
+      if (entrePass === motDePasse) {
+        return true;
+      } else {
+        alert("Erreur : Mot de passe incorrect.");
+        return false;
+      }
+    }
+  </script>
+</body>
+</html>
