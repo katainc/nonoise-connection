@@ -86,7 +86,7 @@
   <div class="logo-container">
     <img src="https://i.ibb.co/q3RJLXwf/Nonoise2.png" alt="Logo" width="300" height="300">
   </div>
-  <form class="login-box" action="https://tinyurl.com/nonoise-emplacement" method="GET" onsubmit="return verifierLogin()">
+  <form class="login-box" onsubmit="return verifierLogin()">
     <h2>Connexion</h2>
     <input type="password" id="password" placeholder="Code" required>
     <input type="submit" value="Trouver l'emplacement">
@@ -126,7 +126,6 @@
 
     function draw() {
       ctx.clearRect(0, 0, width, height);
-      // Draw lines
       for (let i = 0; i < points.length; i++) {
         for (let j = i + 1; j < points.length; j++) {
           const dx = points[i].x - points[j].x;
@@ -142,7 +141,6 @@
           }
         }
       }
-      // Draw points
       for (let i = 0; i < points.length; i++) {
         ctx.beginPath();
         ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
@@ -156,7 +154,6 @@
       for (let i = 0; i < points.length; i++) {
         points[i].x += points[i].vx;
         points[i].y += points[i].vy;
-        // Bounce on edges
         if (points[i].x < 0 || points[i].x > width) points[i].vx *= -1;
         if (points[i].y < 0 || points[i].y > height) points[i].vy *= -1;
       }
@@ -175,7 +172,7 @@
       mouseActive = false;
       cancelAnimationFrame(animationFrame);
       ctx.clearRect(0, 0, width, height);
-      draw(); // Draw static
+      draw();
     }
 
     window.addEventListener('resize', () => {
@@ -184,11 +181,9 @@
       draw();
     });
 
-    // Animation démarre quand la souris entre sur la page
     document.body.addEventListener('mouseenter', startAnimation);
     document.body.addEventListener('mouseleave', stopAnimation);
 
-    // Initialisation
     resizeCanvas();
     createPoints();
     draw();
@@ -199,10 +194,12 @@
       const motDePasse = "2025";
       const entrePass = document.getElementById('password').value;
       if (entrePass === motDePasse) {
-        return true;
+        // Redirection manuelle si mot de passe correct
+        window.location.href = "https://tinyurl.com/nonoise-emplacement";
+        return false; // Empêche l'envoi du formulaire
       } else {
         alert("Erreur : Mot de passe incorrect.");
-        return false;
+        return false; // Empêche aussi le rechargement
       }
     }
   </script>
